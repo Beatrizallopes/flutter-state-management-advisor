@@ -7,6 +7,7 @@ import ChatInputBar from "@/app/widgets/ChatInputBar";
 import InfoCard from "@/app/widgets/InfoCard";
 import MessageBubble from "@/app/widgets/MessageBubble";
 import OptionButton from "@/app/widgets/OptionButton";
+import TypingIndicator from "@/app/widgets/TypingIndicator";
 import styles from "./ChatAdvisorScreen.module.css";
 
 const GREETING =
@@ -19,29 +20,51 @@ function createMessage(sender: ChatMessage["sender"], text: string): ChatMessage
 }
 
 export default function ChatAdvisorScreen() {
-  const [messages, setMessages] = useState<ChatMessage[]>(() => [
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [queue, setQueue] = useState<ChatMessage[]>(() => [
     createMessage("bot", GREETING),
     createMessage("bot", QUESTIONS[0].text),
   ]);
+  const [isTyping, setIsTyping] = useState(false);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [step, setStep] = useState(0);
   const [inputValue, setInputValue] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const currentQuestion = QUESTIONS[step];
+  // Só liberamos as opções depois que todas as mensagens do bot foram entregues.
+  const showOptions = Boolean(currentQuestion) && queue.length === 0 && !isTyping;
+
+  // Entrega as mensagens do bot uma a uma, com o indicador de "digitando" entre elas.
+  useEffect(() => {
+    if (queue.length === 0) return;
+
+    const [next] = queue;
+    setIsTyping(true);
+    // Um tempinho proporcional ao tamanho do texto, como num chat real.
+    const delay = Math.min(1600, 500 + next.text.length * 12);
+
+    const timer = setTimeout(() => {
+      setMessages((prev) => [...prev, next]);
+      setQueue((prev) => prev.slice(1));
+      setIsTyping(false);
+    }, delay);
+
+    return () => clearTimeout(timer);
+  }, [queue]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages]);
+  }, [messages, isTyping]);
 
   function answerQuestion(value: string, label: string) {
     const nextAnswers = { ...answers, [currentQuestion.id]: value };
     const nextQuestion = QUESTIONS[step + 1];
 
     setAnswers(nextAnswers);
-    setMessages((prev) => [
+    setMessages((prev) => [...prev, createMessage("user", label)]);
+    setQueue((prev) => [
       ...prev,
-      createMessage("user", label),
       nextQuestion
         ? createMessage("bot", nextQuestion.text)
         : createMessage("bot", recommend(nextAnswers)),
@@ -64,9 +87,9 @@ export default function ChatAdvisorScreen() {
       return;
     }
 
-    setMessages((prev) => [
+    setMessages((prev) => [...prev, createMessage("user", text)]);
+    setQueue((prev) => [
       ...prev,
-      createMessage("user", text),
       createMessage("bot", "Por favor, escolha uma das opções acima para continuar."),
     ]);
   }
@@ -83,7 +106,9 @@ export default function ChatAdvisorScreen() {
             <MessageBubble key={message.id} message={message} />
           ))}
 
-          {currentQuestion && (
+          {isTyping && <TypingIndicator />}
+
+          {showOptions && currentQuestion && (
             <div className={styles.options}>
               {currentQuestion.options.map((option) => (
                 <OptionButton
