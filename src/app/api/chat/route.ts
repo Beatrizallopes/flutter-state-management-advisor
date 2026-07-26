@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   const { message, history } = await req.json();
 
   const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
+    model: "gemini-flash-latest",
     contents: [
       ...(history ?? []), // array de mensagens anteriores, se quiser manter contexto
       { role: "user", parts: [{ text: message }] },

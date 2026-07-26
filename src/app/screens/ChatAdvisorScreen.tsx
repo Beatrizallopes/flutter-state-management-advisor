@@ -19,6 +19,16 @@ function createMessage(sender: ChatMessage["sender"], text: string): ChatMessage
   return { id: `msg-${messageCount}`, sender, text };
 }
 
+async function sendMessage(message: string) {
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message }),
+  });
+  const data = await res.json();
+  return data.reply;
+}
+
 export default function ChatAdvisorScreen() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [queue, setQueue] = useState<ChatMessage[]>(() => [
@@ -72,26 +82,45 @@ export default function ChatAdvisorScreen() {
     setStep(step + 1);
   }
 
-  function handleSend() {
+  async function handleSend() {
     const text = inputValue.trim();
-    if (!text || !currentQuestion) return;
+    if (!text) return;
 
-    const match = currentQuestion.options.find((option) =>
-      option.label.toLowerCase().includes(text.toLowerCase())
-    );
+    if (currentQuestion) {
+      const match = currentQuestion.options.find((option) =>
+        option.label.toLowerCase().includes(text.toLowerCase())
+      );
 
-    setInputValue("");
+      setInputValue("");
 
-    if (match) {
-      answerQuestion(match.value, match.label);
+      if (match) {
+        answerQuestion(match.value, match.label);
+        return;
+      }
+
+      setMessages((prev) => [...prev, createMessage("user", text)]);
+      setQueue((prev) => [
+        ...prev,
+        createMessage("bot", "Por favor, escolha uma das opções acima para continuar."),
+      ]);
       return;
     }
 
+    setInputValue("");
     setMessages((prev) => [...prev, createMessage("user", text)]);
-    setQueue((prev) => [
-      ...prev,
-      createMessage("bot", "Por favor, escolha uma das opções acima para continuar."),
-    ]);
+    setIsTyping(true);
+
+    try {
+      const reply = await sendMessage(text);
+      setMessages((prev) => [...prev, createMessage("bot", reply)]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        createMessage("bot", "Desculpe, ocorreu um erro ao buscar a resposta."),
+      ]);
+    } finally {
+      setIsTyping(false);
+    }
   }
 
   return (
