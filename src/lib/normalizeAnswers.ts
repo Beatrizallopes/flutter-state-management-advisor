@@ -88,20 +88,20 @@ const MAPA_PRESSAO_PRAZO: Record<string, string> = {
 };
 
 // ===== FUNÇÃO GENÉRICA DE TRADUÇÃO =====
-function traduzir(valor: string, mapa: Record<string, string>): string {
-  const chave = valor.trim().toLowerCase();
-  const traduzido = mapa[chave];
-  if (!traduzido) {
+function translate(valor: string, mapa: Record<string, string>): string {
+  const key = valor.trim().toLowerCase();
+  const translated = mapa[key];
+  if (!translated) {
     console.warn(
       `⚠️ Valor não mapeado: "${valor}" — adicione no dicionário correspondente`,
     );
     return valor; // fallback: mantém original em vez de quebrar
   }
-  return traduzido;
+  return translated;
 }
 
 // ===== TIPO FINAL =====
-export type RespostaNormalizada = {
+export type NormalizedAnswer = {
   timestamp: string;
   funcaoPrincipal: string;
   anosExperienciaFlutter: string;
@@ -123,7 +123,7 @@ export type RespostaNormalizada = {
   satisfacaoGeral: number;
   comentarioLivre: string;
   pais: string;
-  idiomaOriginal: "pt" | "en";
+  originalLanguage: "pt" | "en";
 };
 
 const CAMPOS_ORDEM = [
@@ -150,32 +150,32 @@ const CAMPOS_ORDEM = [
   "pais",
 ] as const;
 
-export function normalizarLinha(
-  linha: string[],
-  idioma: "pt" | "en",
-): RespostaNormalizada {
-  const raw: any = { idiomaOriginal: idioma };
-  CAMPOS_ORDEM.forEach((campo, i) => (raw[campo] = linha[i] ?? ""));
+export function normalizedLine(
+  line: string[],
+  language: "pt" | "en",
+): NormalizedAnswer {
+  const raw: any = { originalLanguage: language };
+  CAMPOS_ORDEM.forEach((field, i) => (raw[field] = line[i] ?? ""));
 
   return {
-    idiomaOriginal: idioma,
+    originalLanguage: language,
     timestamp: raw.timestamp,
-    funcaoPrincipal: traduzir(raw.funcaoPrincipal, MAPA_FUNCAO),
-    anosExperienciaFlutter: traduzir(
+    funcaoPrincipal: translate(raw.funcaoPrincipal, MAPA_FUNCAO),
+    anosExperienciaFlutter: translate(
       raw.anosExperienciaFlutter,
       MAPA_ANOS_EXPERIENCIA,
     ),
-    tamanhoEquipe: traduzir(raw.tamanhoEquipe, MAPA_TAMANHO_EQUIPE),
-    experienciaMediaEquipe: traduzir(
+    tamanhoEquipe: translate(raw.tamanhoEquipe, MAPA_TAMANHO_EQUIPE),
+    experienciaMediaEquipe: translate(
       raw.experienciaMediaEquipe,
       MAPA_EXPERIENCIA_EQUIPE,
     ),
-    complexidadeProjeto: traduzir(raw.complexidadeProjeto, MAPA_COMPLEXIDADE),
-    porteApp: traduzir(raw.porteApp, MAPA_PORTE_APP),
-    tipoApp: traduzir(raw.tipoApp, MAPA_TIPO_APP),
-    exigeEscalabilidade: traduzir(raw.exigeEscalabilidade, MAPA_SIM_NAO),
-    pressaoPrazo: traduzir(raw.pressaoPrazo, MAPA_PRESSAO_PRAZO),
-    bibliotecaUtilizada: raw.bibliotecaUtilizada.trim(), // já é técnico, não precisa traduzir
+    complexidadeProjeto: translate(raw.complexidadeProjeto, MAPA_COMPLEXIDADE),
+    porteApp: translate(raw.porteApp, MAPA_PORTE_APP),
+    tipoApp: translate(raw.tipoApp, MAPA_TIPO_APP),
+    exigeEscalabilidade: translate(raw.exigeEscalabilidade, MAPA_SIM_NAO),
+    pressaoPrazo: translate(raw.pressaoPrazo, MAPA_PRESSAO_PRAZO),
+    bibliotecaUtilizada: raw.bibliotecaUtilizada.trim(), // já é técnico, não precisa translate
     motivoEscolha: raw.motivoEscolha,
     facilidadeImplementacao: Number(raw.facilidadeImplementacao),
     facilidadeManutencao: Number(raw.facilidadeManutencao),

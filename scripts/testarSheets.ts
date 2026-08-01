@@ -16,7 +16,7 @@ async function testar() {
 
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.PORTUGUESE_ANSWERS_SHEET_ID!,
-      range: "A1:Z5", // pega só as 5 primeiras linhas pra testar
+      range: "A1:Z5", // pega só as 5 primeiras lines pra testar
     });
 
     console.log("✅ Conexão funcionou!");

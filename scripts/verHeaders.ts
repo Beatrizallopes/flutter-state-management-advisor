@@ -1,6 +1,6 @@
 // scripts/verHeaders.ts
 import * as dotenv from "dotenv";
-dotenv.config(); // carrega o .env explicitamente, ANTES de importar o resto
+dotenv.config(); // carrega o .env explicitamente, ANTES de importar o rest
 
 import {
   getAnswersPortuguese,

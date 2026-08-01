@@ -1,5 +1,5 @@
 import { google } from "googleapis";
-import { normalizarLinha, RespostaNormalizada } from "./normalizarRespostas";
+import { normalizedLine, NormalizedAnswer } from "./normalizeAnswers";
 
 let auth: InstanceType<typeof google.auth.GoogleAuth> | undefined;
 
@@ -22,38 +22,38 @@ async function getSheetValues(spreadsheetId: string) {
   return res.data.values ?? [];
 }
 
-function paraObjetos(linhas: string[][]): Record<string, string>[] {
-  const [headers, ...resto] = linhas;
-  return resto.map((linha) => {
+function toObjects(lines: string[][]): Record<string, string>[] {
+  const [headers, ...rest] = lines;
+  return rest.map((line) => {
     const obj: Record<string, string> = {};
-    headers.forEach((h, i) => (obj[h] = linha[i] ?? ""));
+    headers.forEach((h, i) => (obj[h] = line[i] ?? ""));
     return obj;
   });
 }
 
 export async function getAnswersPortuguese() {
   const raw = await getSheetValues(process.env.PORTUGUESE_ANSWERS_SHEET_ID!);
-  return paraObjetos(raw);
+  return toObjects(raw);
 }
 
 export async function getAnswersEnglish() {
   const raw = await getSheetValues(process.env.ENGLISH_ANSWERS_SHEET_ID!);
-  return paraObjetos(raw);
+  return toObjects(raw);
 }
 
-async function getRespostasNormalizadas(
+async function getNormalizedAnswers(
   spreadsheetId: string,
-  idioma: "pt" | "en",
-): Promise<RespostaNormalizada[]> {
+  language: "pt" | "en",
+): Promise<NormalizedAnswer[]> {
   const raw = await getSheetValues(spreadsheetId);
-  const [, ...linhas] = raw; // ignora o header
-  return linhas.map((linha) => normalizarLinha(linha, idioma));
+  const [, ...lines] = raw; // ignora o header
+  return lines.map((line) => normalizedLine(line, language));
 }
 
-export async function getTodasRespostas(): Promise<RespostaNormalizada[]> {
+export async function getAllAnswers(): Promise<NormalizedAnswer[]> {
   const [pt, en] = await Promise.all([
-    getRespostasNormalizadas(process.env.PORTUGUESE_ANSWERS_SHEET_ID!, "pt"),
-    getRespostasNormalizadas(process.env.ENGLISH_ANSWERS_SHEET_ID!, "en"),
+    getNormalizedAnswers(process.env.PORTUGUESE_ANSWERS_SHEET_ID!, "pt"),
+    getNormalizedAnswers(process.env.ENGLISH_ANSWERS_SHEET_ID!, "en"),
   ]);
   return [...pt, ...en]; // as 42 respostas juntas, já com campos padronizados em português
 }
