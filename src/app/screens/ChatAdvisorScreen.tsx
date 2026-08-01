@@ -52,7 +52,7 @@ export default function ChatAdvisorScreen() {
   const [estadoWizard, setEstadoWizard] = useState<EstadoWizard>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
   const iniciouRef = useRef(false);
 
   // dispara a primeira pergunta do wizard assim que o chat abre
@@ -70,7 +70,10 @@ export default function ChatAdvisorScreen() {
   }, []);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    const el = messagesRef.current;
+    if (el) {
+      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    }
   }, [messages, isTyping]);
 
   async function handleSend() {
@@ -102,14 +105,12 @@ export default function ChatAdvisorScreen() {
       <section className={styles.chatCard}>
         <ChatHeader />
 
-        <div className={styles.messages}>
+        <div className={styles.messages} ref={messagesRef}>
           {messages.map((message) => (
             <MessageBubble key={message.id} message={message} />
           ))}
 
           {isTyping && <TypingIndicator />}
-
-          <div ref={bottomRef} />
         </div>
 
         <ChatInputBar
