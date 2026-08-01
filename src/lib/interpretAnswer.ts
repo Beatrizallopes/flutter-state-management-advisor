@@ -23,11 +23,11 @@ async function comRetry<T>(
 export async function interpretAnswer(
   userMessage: string,
   questionIndex: number,
-): Promise<{ valor: string | null; erro?: "rate_limit" | "outro" }> {
+): Promise<{ value: string | null; erro?: "rate_limit" | "outro" }> {
   const question = questions[questionIndex];
 
   if (!question.options) {
-    return { valor: userMessage.trim() || null };
+    return { value: userMessage.trim() || null };
   }
 
   try {
@@ -53,25 +53,25 @@ Se a resposta não permitir identificar claramente uma opção, retorne valor nu
           responseSchema: {
             type: Type.OBJECT,
             properties: {
-              valor: { type: Type.STRING, nullable: true },
+              value: { type: Type.STRING, nullable: true },
             },
-            required: ["valor"],
+            required: ["value"],
           },
         },
       }),
     );
 
     if (!response.text) {
-      return { valor: null, erro: "outro" };
+      return { value: null, erro: "outro" };
     }
 
     const parsed = JSON.parse(response.text);
-    return { valor: parsed.valor };
+    return { value: parsed.value };
   } catch (err: any) {
     if (err.status === 429) {
-      return { valor: null, erro: "rate_limit" };
+      return { value: null, erro: "rate_limit" };
     }
     console.error("Erro ao interpretar resposta:", err);
-    return { valor: null, erro: "outro" };
+    return { value: null, erro: "outro" };
   }
 }

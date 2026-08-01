@@ -48,13 +48,13 @@ export const questions = [
 export type wizardField = (typeof questions)[number]["field"];
 
 export type wizardState = {
-  respostas: Partial<Record<wizardField, string>>;
-  indiceAtual: number;
-  finalizado: boolean;
+  answers: Partial<Record<wizardField, string>>;
+  currentIndex: number;
+  finished: boolean;
 };
 
 export const initialState: wizardState = {
-  respostas: {},
-  indiceAtual: 0,
-  finalizado: false,
+  answers: {},
+  currentIndex: 0,
+  finished: false,
 };

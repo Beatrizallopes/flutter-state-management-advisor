@@ -10,9 +10,9 @@ import styles from "./ChatAdvisorScreen.module.css";
 
 type ChatMessage = { id: string; sender: "bot" | "user"; text: string };
 type wizardState = {
-  respostas: Record<string, string>;
-  indiceAtual: number;
-  finalizado: boolean;
+  answers: Record<string, string>;
+  currentIndex: number;
+  finished: boolean;
 } | null;
 
 const GREETING =
