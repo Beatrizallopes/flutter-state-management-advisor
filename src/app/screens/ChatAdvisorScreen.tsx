@@ -36,6 +36,15 @@ async function sendMessage(message: string, estadoWizard: EstadoWizard) {
   return res.json(); // { reply, estadoWizard }
 }
 
+async function iniciarWizard() {
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ iniciar: true, estadoWizard: null }),
+  });
+  return res.json(); // { reply, estadoWizard }
+}
+
 export default function ChatAdvisorScreen() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     createMessage("bot", GREETING),
@@ -53,7 +62,7 @@ export default function ChatAdvisorScreen() {
 
     (async () => {
       setIsTyping(true);
-      const data = await sendMessage("", null);
+      const data = await iniciarWizard();
       setEstadoWizard(data.estadoWizard);
       setMessages((prev) => [...prev, createMessage("bot", data.reply)]);
       setIsTyping(false);

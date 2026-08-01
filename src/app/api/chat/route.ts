@@ -4,8 +4,18 @@ import { interpretarResposta } from "@/lib/interpretarResposta";
 import { gerarRecomendacao } from "@/lib/gerarRecomendacao";
 
 export async function POST(req: NextRequest) {
-  const { message, estadoWizard } = await req.json();
+  const { message, estadoWizard, iniciar } = await req.json();
   const estado: EstadoWizard = estadoWizard ?? ESTADO_INICIAL;
+
+  if (iniciar) {
+    const primeiraPergunta = PERGUNTAS[estado.indiceAtual];
+    return NextResponse.json({
+      reply: `${primeiraPergunta.pergunta}${
+        primeiraPergunta.ajuda ? ` (${primeiraPergunta.ajuda})` : ""
+      }`,
+      estadoWizard: estado,
+    });
+  }
 
   if (estado.finalizado) {
     return NextResponse.json({

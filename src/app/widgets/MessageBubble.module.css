@@ -26,6 +26,57 @@
   transform-origin: bottom right;
 }
 
+/* ===== Estilos do conteúdo markdown (só afeta mensagens do bot) ===== */
+
+.bot :global(p) {
+  margin: 0 0 0.5rem;
+}
+
+.bot :global(p:last-child) {
+  margin-bottom: 0;
+}
+
+.bot :global(h1),
+.bot :global(h2),
+.bot :global(h3) {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0.6rem 0 0.3rem;
+}
+
+.bot :global(h1:first-child),
+.bot :global(h2:first-child),
+.bot :global(h3:first-child) {
+  margin-top: 0;
+}
+
+.bot :global(strong) {
+  font-weight: 600;
+}
+
+.bot :global(ul),
+.bot :global(ol) {
+  margin: 0.3rem 0;
+  padding-left: 1.2rem;
+}
+
+.bot :global(li) {
+  margin-bottom: 0.2rem;
+}
+
+.bot :global(hr) {
+  border: none;
+  border-top: 1px solid var(--pink-100);
+  margin: 0.6rem 0;
+}
+
+.bot :global(code) {
+  background: var(--pink-100);
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  font-size: 0.82rem;
+}
+
 @keyframes bubble-in {
   from {
     opacity: 0;
