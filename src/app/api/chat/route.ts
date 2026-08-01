@@ -1,18 +1,48 @@
-import { GoogleGenAI } from "@google/genai";
 import { NextRequest, NextResponse } from "next/server";
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+import { PERGUNTAS, EstadoWizard, ESTADO_INICIAL } from "@/lib/wizardPerguntas";
+import { interpretarResposta } from "@/lib/interpretarResposta";
+import { gerarRecomendacao } from "@/lib/gerarRecomendacao";
 
 export async function POST(req: NextRequest) {
-  const { message, history } = await req.json();
+  const { message, estadoWizard } = await req.json();
+  const estado: EstadoWizard = estadoWizard ?? ESTADO_INICIAL;
 
-  const response = await ai.models.generateContent({
-    model: "gemini-flash-latest",
-    contents: [
-      ...(history ?? []), // array de mensagens anteriores, se quiser manter contexto
-      { role: "user", parts: [{ text: message }] },
-    ],
-  });
+  if (estado.finalizado) {
+    return NextResponse.json({
+      reply:
+        "Sua recomendação já foi gerada! Se quiser recomeçar, atualize a página.",
+      estadoWizard: estado,
+    });
+  }
 
-  return NextResponse.json({ reply: response.text });
+  const perguntaAtual = PERGUNTAS[estado.indiceAtual];
+  const { valor } = await interpretarResposta(message, estado.indiceAtual);
+
+  if (!valor) {
+    return NextResponse.json({
+      reply: `Não consegui identificar bem sua resposta. ${perguntaAtual.pergunta}${
+        perguntaAtual.ajuda ? ` (${perguntaAtual.ajuda})` : ""
+      }`,
+      estadoWizard: estado,
+    });
+  }
+
+  const novoEstado: EstadoWizard = {
+    ...estado,
+    respostas: { ...estado.respostas, [perguntaAtual.campo]: valor },
+    indiceAtual: estado.indiceAtual + 1,
+  };
+
+  if (novoEstado.indiceAtual < PERGUNTAS.length) {
+    const proxima = PERGUNTAS[novoEstado.indiceAtual];
+    return NextResponse.json({
+      reply: `${proxima.pergunta}${proxima.ajuda ? ` (${proxima.ajuda})` : ""}`,
+      estadoWizard: novoEstado,
+    });
+  }
+
+  novoEstado.finalizado = true;
+  const recomendacao = await gerarRecomendacao(novoEstado.respostas);
+
+  return NextResponse.json({ reply: recomendacao, estadoWizard: novoEstado });
 }

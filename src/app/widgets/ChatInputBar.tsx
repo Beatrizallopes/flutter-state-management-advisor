@@ -6,7 +6,11 @@ interface ChatInputBarProps {
   onSend: () => void;
 }
 
-export default function ChatInputBar({ value, onChange, onSend }: ChatInputBarProps) {
+export default function ChatInputBar({
+  value,
+  onChange,
+  onSend,
+}: ChatInputBarProps) {
   return (
     <form
       className={styles.bar}
@@ -20,10 +24,20 @@ export default function ChatInputBar({ value, onChange, onSend }: ChatInputBarPr
         type="text"
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        placeholder="Ou use os botões acima para responder..."
+        placeholder="Digite sua resposta..."
       />
-      <button type="submit" className={styles.send} aria-label="Enviar mensagem">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
+      <button
+        type="submit"
+        className={styles.send}
+        aria-label="Enviar mensagem"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          width="18"
+          height="18"
+          fill="none"
+          aria-hidden="true"
+        >
           <path
             d="M3 11.5 20.5 3 12 20.5l-2.2-6.8L3 11.5Z"
             stroke="currentColor"
