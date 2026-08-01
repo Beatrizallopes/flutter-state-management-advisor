@@ -9,7 +9,7 @@ import TypingIndicator from "@/app/widgets/TypingIndicator";
 import styles from "./ChatAdvisorScreen.module.css";
 
 type ChatMessage = { id: string; sender: "bot" | "user"; text: string };
-type EstadoWizard = {
+type wizardState = {
   respostas: Record<string, string>;
   indiceAtual: number;
   finalizado: boolean;
@@ -27,43 +27,42 @@ function createMessage(
   return { id: `msg-${messageCount}`, sender, text };
 }
 
-async function sendMessage(message: string, estadoWizard: EstadoWizard) {
+async function sendMessage(message: string, wizardState: wizardState) {
   const res = await fetch("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message, estadoWizard }),
+    body: JSON.stringify({ message, wizardState }),
   });
-  return res.json(); // { reply, estadoWizard }
+  return res.json();
 }
 
-async function iniciarWizard() {
+async function startWizard() {
   const res = await fetch("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ iniciar: true, estadoWizard: null }),
+    body: JSON.stringify({ start: true, wizardState: null }),
   });
-  return res.json(); // { reply, estadoWizard }
+  return res.json();
 }
 
 export default function ChatAdvisorScreen() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     createMessage("bot", GREETING),
   ]);
-  const [estadoWizard, setEstadoWizard] = useState<EstadoWizard>(null);
+  const [wizardState, setWizardState] = useState<wizardState>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const messagesRef = useRef<HTMLDivElement>(null);
-  const iniciouRef = useRef(false);
+  const startedRef = useRef(false);
 
-  // dispara a primeira pergunta do wizard assim que o chat abre
   useEffect(() => {
-    if (iniciouRef.current) return;
-    iniciouRef.current = true;
+    if (startedRef.current) return;
+    startedRef.current = true;
 
     (async () => {
       setIsTyping(true);
-      const data = await iniciarWizard();
-      setEstadoWizard(data.estadoWizard);
+      const data = await startWizard();
+      setWizardState(data.wizardState);
       setMessages((prev) => [...prev, createMessage("bot", data.reply)]);
       setIsTyping(false);
     })();
@@ -85,8 +84,8 @@ export default function ChatAdvisorScreen() {
     setIsTyping(true);
 
     try {
-      const data = await sendMessage(text, estadoWizard);
-      setEstadoWizard(data.estadoWizard);
+      const data = await sendMessage(text, wizardState);
+      setWizardState(data.wizardState);
       setMessages((prev) => [...prev, createMessage("bot", data.reply)]);
     } catch {
       setMessages((prev) => [

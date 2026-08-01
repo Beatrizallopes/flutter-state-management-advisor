@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PERGUNTAS, EstadoWizard, ESTADO_INICIAL } from "@/lib/wizardPerguntas";
-import { interpretarResposta } from "@/lib/interpretarResposta";
-import { gerarRecomendacao } from "@/lib/gerarRecomendacao";
+import { questions, wizardState, initialState } from "@/lib/questionsWizard";
+import { interpretAnswer } from "@/lib/interpretAnswer";
+import { generateRecommendation } from "@/lib/generateRecommendation";
 
 export async function POST(req: NextRequest) {
-  const { message, estadoWizard, iniciar } = await req.json();
-  const estado: EstadoWizard = estadoWizard ?? ESTADO_INICIAL;
+  const { message, wizardState, start } = await req.json();
+  const estado: wizardState = wizardState ?? initialState;
 
-  if (iniciar) {
-    const primeiraPergunta = PERGUNTAS[estado.indiceAtual];
+  if (start) {
+    const primeiraPergunta = questions[estado.indiceAtual];
     return NextResponse.json({
-      reply: `${primeiraPergunta.pergunta}${
-        primeiraPergunta.ajuda ? ` (${primeiraPergunta.ajuda})` : ""
+      reply: `${primeiraPergunta.question}${
+        primeiraPergunta.help ? ` (${primeiraPergunta.help})` : ""
       }`,
-      estadoWizard: estado,
+      wizardState: estado,
     });
   }
 
@@ -21,46 +21,46 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       reply:
         "Sua recomendação já foi gerada! Se quiser recomeçar, atualize a página.",
-      estadoWizard: estado,
+      wizardState: estado,
     });
   }
 
-  const perguntaAtual = PERGUNTAS[estado.indiceAtual];
-  const { valor, erro } = await interpretarResposta(message, estado.indiceAtual);
+  const perguntaAtual = questions[estado.indiceAtual];
+  const { valor, erro } = await interpretAnswer(message, estado.indiceAtual);
 
   if (erro === "rate_limit") {
     return NextResponse.json({
       reply:
         "Estou recebendo muitas mensagens agora e bati o limite da API. Aguarde um minuto e tente novamente. 🙏",
-      estadoWizard: estado,
+      wizardState: estado,
     });
   }
 
   if (!valor) {
     return NextResponse.json({
-      reply: `Não consegui identificar bem sua resposta. ${perguntaAtual.pergunta}${
-        perguntaAtual.ajuda ? ` (${perguntaAtual.ajuda})` : ""
+      reply: `Não consegui identificar bem sua resposta. ${perguntaAtual.question}${
+        perguntaAtual.help ? ` (${perguntaAtual.help})` : ""
       }`,
-      estadoWizard: estado,
+      wizardState: estado,
     });
   }
 
-  const novoEstado: EstadoWizard = {
+  const novoEstado: wizardState = {
     ...estado,
-    respostas: { ...estado.respostas, [perguntaAtual.campo]: valor },
+    respostas: { ...estado.respostas, [perguntaAtual.field]: valor },
     indiceAtual: estado.indiceAtual + 1,
   };
 
-  if (novoEstado.indiceAtual < PERGUNTAS.length) {
-    const proxima = PERGUNTAS[novoEstado.indiceAtual];
+  if (novoEstado.indiceAtual < questions.length) {
+    const proxima = questions[novoEstado.indiceAtual];
     return NextResponse.json({
-      reply: `${proxima.pergunta}${proxima.ajuda ? ` (${proxima.ajuda})` : ""}`,
-      estadoWizard: novoEstado,
+      reply: `${proxima.question}${proxima.help ? ` (${proxima.help})` : ""}`,
+      wizardState: novoEstado,
     });
   }
 
   novoEstado.finalizado = true;
-  const recomendacao = await gerarRecomendacao(novoEstado.respostas);
+  const recomendacao = await generateRecommendation(novoEstado.respostas);
 
-  return NextResponse.json({ reply: recomendacao, estadoWizard: novoEstado });
+  return NextResponse.json({ reply: recomendacao, wizardState: novoEstado });
 }

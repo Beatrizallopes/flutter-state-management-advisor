@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { GoogleGenAI, Type } from "@google/genai";
-import { PERGUNTAS } from "./wizardPerguntas";
+import { questions } from "./questionsWizard";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -20,14 +20,14 @@ async function comRetry<T>(
   }
 }
 
-export async function interpretarResposta(
-  mensagemUsuario: string,
-  indicePergunta: number,
+export async function interpretAnswer(
+  userMessage: string,
+  questionIndex: number,
 ): Promise<{ valor: string | null; erro?: "rate_limit" | "outro" }> {
-  const pergunta = PERGUNTAS[indicePergunta];
+  const question = questions[questionIndex];
 
-  if (!pergunta.opcoes) {
-    return { valor: mensagemUsuario.trim() || null };
+  if (!question.options) {
+    return { valor: userMessage.trim() || null };
   }
 
   try {
@@ -39,10 +39,10 @@ export async function interpretarResposta(
             role: "user",
             parts: [
               {
-                text: `Pergunta feita ao usuário: "${pergunta.pergunta}"
-Resposta do usuário: "${mensagemUsuario}"
+                text: `Pergunta feita ao usuário: "${question.question}"
+Resposta do usuário: "${userMessage}"
 
-Classifique a resposta em UMA destas opções: ${pergunta.opcoes.join(", ")}.
+Classifique a resposta em UMA destas opções: ${question.options.join(", ")}.
 Se a resposta não permitir identificar claramente uma opção, retorne valor null.`,
               },
             ],

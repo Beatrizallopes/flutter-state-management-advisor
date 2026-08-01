@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// src/lib/gerarRecomendacao.ts
+// src/lib/generateRecommendation.ts
 import { GoogleGenAI } from "@google/genai";
-import { getTodasRespostas } from "./googleSheets";
-import bibliografiaData from "@/data/bibliografia.json";
-import { CampoWizard } from "./wizardPerguntas";
+import { getAllAnswers } from "./googleSheets";
+import bibliographyData from "@/data/bibliography.json";
+import { wizardField } from "./questionsWizard";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -23,11 +23,11 @@ async function comRetry<T>(
   }
 }
 
-export async function gerarRecomendacao(
-  respostasUsuario: Partial<Record<CampoWizard, string>>,
+export async function generateRecommendation(
+  respostasUsuario: Partial<Record<wizardField, string>>,
 ): Promise<string> {
-  const dataset = await getTodasRespostas();
-  const bibliografia = bibliografiaData.map((b: any) => b.texto).join("\n\n");
+  const dataset = await getAllAnswers();
+  const bibliografia = bibliographyData.map((b: any) => b.texto).join("\n\n");
 
   const prompt = `Você é um assistente especializado em recomendar bibliotecas de gerenciamento de estado para projetos Flutter, com base em pesquisa acadêmica (TCC).
 
@@ -46,7 +46,7 @@ Com base nesses três elementos, responda:
 3. Quantas respostas na pesquisa têm perfil parecido com o do usuário, e o que essas pessoas usaram e reportaram de satisfação?
 4. Cite alternativas caso o cenário mude (ex: se o prazo for mais apertado, ou a equipe menos experiente).
 
-Responda em texto corrido e conversacional, como num chat — evite títulos markdown (###) e linhas divisórias (---). Pode usar **negrito** pontual e listas curtas quando ajudar a clareza, mas mantenha o tom de conversa, não de relatório formal.`;
+Responda em texto corrido e conversacional, como num chat — evite títulos markdown (###) e lines divisórias (---). Pode usar **negrito** pontual e listas curtas quando ajudar a clareza, mas mantenha o tom de conversa, não de relatório formal.`;
 
   try {
     const response = await comRetry(() =>

@@ -1,10 +1,10 @@
 // scripts/normalizarTudo.ts
 import * as dotenv from "dotenv";
 dotenv.config();
-import { getTodasRespostas } from "../src/lib/googleSheets"; // já deve estar usando normalizarLinha
+import { getAllAnswers } from "../src/lib/googleSheets"; // já deve estar usando normalizedLine
 
 async function main() {
-  const respostas = await getTodasRespostas();
+  const respostas = await getAllAnswers();
   console.log(`Total normalizado: ${respostas.length}`);
 
   // conta quantas vezes cada biblioteca aparece — bom teste de sanidade
