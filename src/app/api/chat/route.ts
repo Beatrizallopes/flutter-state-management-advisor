@@ -26,7 +26,15 @@ export async function POST(req: NextRequest) {
   }
 
   const perguntaAtual = PERGUNTAS[estado.indiceAtual];
-  const { valor } = await interpretarResposta(message, estado.indiceAtual);
+  const { valor, erro } = await interpretarResposta(message, estado.indiceAtual);
+
+  if (erro === "rate_limit") {
+    return NextResponse.json({
+      reply:
+        "Estou recebendo muitas mensagens agora e bati o limite da API. Aguarde um minuto e tente novamente. 🙏",
+      estadoWizard: estado,
+    });
+  }
 
   if (!valor) {
     return NextResponse.json({
