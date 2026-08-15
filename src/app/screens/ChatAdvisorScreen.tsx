@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import ChatHeader from "@/app/widgets/ChatHeader";
-import ChatInputBar from "@/app/widgets/ChatInputBar";
-import InfoCard from "@/app/widgets/InfoCard";
-import MessageBubble from "@/app/widgets/MessageBubble";
-import TypingIndicator from "@/app/widgets/TypingIndicator";
+import ChatHeader from "@/app/widgets/ChatHeader/ChatHeader";
+import ChatInputBar from "@/app/widgets/ChatInputBar/ChatInputBar";
+import InfoCard from "@/app/widgets/InfoCard/InfoCard";
+import MessageBubble from "@/app/widgets/MessageBubble/MessageBubble";
+import TypingIndicator from "@/app/widgets/TypingIndicator/TypingIndicator";
 import styles from "./ChatAdvisorScreen.module.css";
 import { CHAT_API_ENDPOINT, JSON_CONTENT_TYPE_HEADERS } from "@/constants/api";
 import { GREETING_MESSAGE, GENERIC_ERROR_MESSAGE } from "@/constants/messages";
