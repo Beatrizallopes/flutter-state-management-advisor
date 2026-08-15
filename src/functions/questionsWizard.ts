@@ -1,14 +1,8 @@
 import { questions } from "@/constants/questions";
+import type { wizardField, wizardState } from "@/types/wizard";
 
 export { questions };
-
-export type wizardField = (typeof questions)[number]["field"];
-
-export type wizardState = {
-  answers: Partial<Record<wizardField, string>>;
-  currentIndex: number;
-  finished: boolean;
-};
+export type { wizardField, wizardState };
 
 export const initialState: wizardState = {
   answers: {},

@@ -1,6 +1,6 @@
 import ReactMarkdown from "react-markdown";
-import type { ChatMessage } from "@/lib/advisor";
 import styles from "./MessageBubble.module.css";
+import type { ChatMessage } from "@/types/chat";
 
 export default function MessageBubble({ message }: { message: ChatMessage }) {
   const isUser = message.sender === "user";

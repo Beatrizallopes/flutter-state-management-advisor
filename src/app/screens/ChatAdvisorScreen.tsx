@@ -9,13 +9,8 @@ import TypingIndicator from "@/app/widgets/TypingIndicator";
 import styles from "./ChatAdvisorScreen.module.css";
 import { CHAT_API_ENDPOINT, JSON_CONTENT_TYPE_HEADERS } from "@/constants/api";
 import { GREETING_MESSAGE, GENERIC_ERROR_MESSAGE } from "@/constants/messages";
-
-type ChatMessage = { id: string; sender: "bot" | "user"; text: string };
-type wizardState = {
-  answers: Record<string, string>;
-  currentIndex: number;
-  finished: boolean;
-} | null;
+import type { ChatMessage } from "@/types/chat";
+import type { wizardState } from "@/types/wizard";
 
 let messageCount = 0;
 function createMessage(
@@ -26,7 +21,7 @@ function createMessage(
   return { id: `msg-${messageCount}`, sender, text };
 }
 
-async function sendMessage(message: string, wizardState: wizardState) {
+async function sendMessage(message: string, wizardState: wizardState | null) {
   const res = await fetch(CHAT_API_ENDPOINT, {
     method: "POST",
     headers: JSON_CONTENT_TYPE_HEADERS,
@@ -48,7 +43,7 @@ export default function ChatAdvisorScreen() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     createMessage("bot", GREETING_MESSAGE),
   ]);
-  const [wizardState, setWizardState] = useState<wizardState>(null);
+  const [wizardState, setWizardState] = useState<wizardState | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const messagesRef = useRef<HTMLDivElement>(null);

@@ -1,7 +1,8 @@
 import { google } from "googleapis";
-import { normalizedLine, NormalizedAnswer } from "./normalizeAnswers";
+import { normalizedLine } from "./normalizeAnswers";
 import { getAuth } from "./googleAuth";
 import { RESPONSES_SHEET_RANGE } from "@/constants/googleApi";
+import type { NormalizedAnswer } from "@/types/answers";
 
 async function getSheetValues(spreadsheetId: string) {
   const sheets = google.sheets({ version: "v4", auth: getAuth() });

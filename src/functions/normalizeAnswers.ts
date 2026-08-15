@@ -13,6 +13,7 @@ import {
   MAPA_PRESSAO_PRAZO,
   CAMPOS_ORDEM,
 } from "@/constants/answerMappings";
+import type { NormalizedAnswer } from "@/types/answers";
 
 // ===== FUNÇÃO GENÉRICA DE TRADUÇÃO =====
 function translate(valor: string, mapa: Record<string, string>): string {
@@ -26,32 +27,6 @@ function translate(valor: string, mapa: Record<string, string>): string {
   }
   return translated;
 }
-
-// ===== TIPO FINAL =====
-export type NormalizedAnswer = {
-  timestamp: string;
-  funcaoPrincipal: string;
-  anosExperienciaFlutter: string;
-  tamanhoEquipe: string;
-  experienciaMediaEquipe: string;
-  complexidadeProjeto: string;
-  porteApp: string;
-  tipoApp: string;
-  exigeEscalabilidade: string;
-  pressaoPrazo: string;
-  bibliotecaUtilizada: string;
-  motivoEscolha: string; // texto livre, sem tradução
-  facilidadeImplementacao: number;
-  facilidadeManutencao: number;
-  curvaAprendizado: number;
-  escalabilidadeSolucao: number;
-  impactoVelocidade: number;
-  organizacaoCodigo: number;
-  satisfacaoGeral: number;
-  comentarioLivre: string;
-  pais: string;
-  originalLanguage: "pt" | "en";
-};
 
 export function normalizedLine(
   line: string[],
