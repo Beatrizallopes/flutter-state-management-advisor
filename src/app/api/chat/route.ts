@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { questions, wizardState, initialState } from "@/lib/questionsWizard";
-import { interpretAnswer } from "@/lib/interpretAnswer";
-import { generateRecommendation } from "@/lib/generateRecommendation";
+import {
+  questions,
+  wizardState,
+  initialState,
+} from "@/functions/questionsWizard";
+import { interpretAnswer } from "@/functions/interpretAnswer";
+import { generateRecommendation } from "@/functions/generateRecommendation";
 
 export async function POST(req: NextRequest) {
   const { message, wizardState, start } = await req.json();

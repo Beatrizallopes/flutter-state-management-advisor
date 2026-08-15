@@ -1,17 +1,6 @@
 import { google } from "googleapis";
 import { normalizedLine, NormalizedAnswer } from "./normalizeAnswers";
-
-let auth: InstanceType<typeof google.auth.GoogleAuth> | undefined;
-
-function getAuth() {
-  if (!auth) {
-    auth = new google.auth.GoogleAuth({
-      credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY!),
-      scopes: ["https://www.googleapis.com/auth/spreadsheets.readonly"],
-    });
-  }
-  return auth;
-}
+import { getAuth } from "./googleAuth";
 
 async function getSheetValues(spreadsheetId: string) {
   const sheets = google.sheets({ version: "v4", auth: getAuth() });
@@ -55,5 +44,5 @@ export async function getAllAnswers(): Promise<NormalizedAnswer[]> {
     getNormalizedAnswers(process.env.PORTUGUESE_ANSWERS_SHEET_ID!, "pt"),
     getNormalizedAnswers(process.env.ENGLISH_ANSWERS_SHEET_ID!, "en"),
   ]);
-  return [...pt, ...en]; // as 42 respostas juntas, já com campos padronizados em português
+  return [...pt, ...en];
 }

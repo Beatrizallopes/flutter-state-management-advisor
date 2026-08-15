@@ -1,24 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { GoogleGenAI, Type } from "@google/genai";
+import { Type } from "@google/genai";
 import { questions } from "./questionsWizard";
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
-async function comRetry<T>(
-  fn: () => Promise<T>,
-  tentativas = 2,
-  delayMs = 3000,
-): Promise<T> {
-  try {
-    return await fn();
-  } catch (err: any) {
-    if (err.status === 429 && tentativas > 0) {
-      await new Promise((r) => setTimeout(r, delayMs));
-      return comRetry(fn, tentativas - 1, delayMs * 2); // dobra o tempo a cada nova tentativa
-    }
-    throw err;
-  }
-}
+import { withRetry } from "./withRetry";
+import { ai } from "./genAiClient";
 
 export async function interpretAnswer(
   userMessage: string,
@@ -31,7 +15,7 @@ export async function interpretAnswer(
   }
 
   try {
-    const response = await comRetry(() =>
+    const response = await withRetry(() =>
       ai.models.generateContent({
         model: "gemini-3.5-flash",
         contents: [

@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 dotenv.config();
-import { getAllAnswers } from "../src/lib/googleSheets"; // já deve estar usando normalizedLine
+import { getAllAnswers } from "../src/functions/googleSheets"; // já deve estar usando normalizedLine
 
 async function main() {
   const answers = await getAllAnswers();

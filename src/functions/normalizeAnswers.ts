@@ -16,7 +16,6 @@ const MAPA_ANOS_EXPERIENCIA: Record<string, string> = {
   "3 to four years": "3-4 anos", // atenção: resposta EN veio com typo ("four" em vez de "4") — mapeando mesmo assim
   "5 anos ou mais": "5+ anos",
   "5 years or more": "5+ anos",
-  // confira se há "menos de 1 ano" / "less than 1 year" nas respostas
 };
 
 const MAPA_TAMANHO_EQUIPE: Record<string, string> = {

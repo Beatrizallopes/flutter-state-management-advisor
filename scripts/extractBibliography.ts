@@ -2,9 +2,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 import fs from "fs";
 import path from "path";
-import { GoogleGenAI } from "@google/genai";
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+import { ai } from "../src/functions/genAiClient";
 
 const pdfPath = path.join(
   process.cwd(),

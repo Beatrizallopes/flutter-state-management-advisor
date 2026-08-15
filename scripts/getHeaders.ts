@@ -3,7 +3,7 @@ dotenv.config();
 import {
   getAnswersPortuguese,
   getAnswersEnglish,
-} from "../src/lib/googleSheets";
+} from "../src/functions/googleSheets";
 
 async function main() {
   const portugueseAnswers = await getAnswersPortuguese();
