@@ -4,6 +4,12 @@ import bibliographyData from "@/data/bibliography.json";
 import { wizardField } from "./questionsWizard";
 import { withRetry } from "./withRetry";
 import { ai } from "./genAiClient";
+import { GEMINI_MODEL, HTTP_STATUS_RATE_LIMIT } from "@/constants/ai";
+import {
+  NO_RECOMMENDATION_MESSAGE,
+  RATE_LIMIT_MESSAGE,
+  RECOMMENDATION_FAILED_MESSAGE,
+} from "@/constants/messages";
 
 export async function generateRecommendation(
   userAnswers: Partial<Record<wizardField, string>>,
@@ -33,20 +39,20 @@ Responda em texto corrido e conversacional, como num chat — evite títulos mar
   try {
     const response = await withRetry(() =>
       ai.models.generateContent({
-        model: "gemini-3.5-flash",
+        model: GEMINI_MODEL,
         contents: [{ role: "user", parts: [{ text: prompt }] }],
       }),
     );
     if (!response.text) {
-      return "Desculpe, não consegui gerar sua recomendação. Tente novamente em instantes.";
+      return NO_RECOMMENDATION_MESSAGE;
     }
     return response.text;
   } catch (err: any) {
     console.log(err);
-    if (err.status === 429) {
-      return "Estou recebendo muitas mensagens agora e bati o limite da API. Aguarde um minuto e tente novamente. 🙏";
+    if (err.status === HTTP_STATUS_RATE_LIMIT) {
+      return RATE_LIMIT_MESSAGE;
     }
     console.error("Erro ao gerar recomendação:", err);
-    return "Desculpe, ocorreu um erro ao gerar sua recomendação. Tente novamente em instantes.";
+    return RECOMMENDATION_FAILED_MESSAGE;
   }
 }

@@ -1,12 +1,13 @@
 import { google } from "googleapis";
 import { normalizedLine, NormalizedAnswer } from "./normalizeAnswers";
 import { getAuth } from "./googleAuth";
+import { RESPONSES_SHEET_RANGE } from "@/constants/googleApi";
 
 async function getSheetValues(spreadsheetId: string) {
   const sheets = google.sheets({ version: "v4", auth: getAuth() });
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId,
-    range: "Respostas do Formulário 1",
+    range: RESPONSES_SHEET_RANGE,
   });
   return res.data.values ?? [];
 }

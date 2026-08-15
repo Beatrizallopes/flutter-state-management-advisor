@@ -7,6 +7,8 @@ import InfoCard from "@/app/widgets/InfoCard";
 import MessageBubble from "@/app/widgets/MessageBubble";
 import TypingIndicator from "@/app/widgets/TypingIndicator";
 import styles from "./ChatAdvisorScreen.module.css";
+import { CHAT_API_ENDPOINT, JSON_CONTENT_TYPE_HEADERS } from "@/constants/api";
+import { GREETING_MESSAGE, GENERIC_ERROR_MESSAGE } from "@/constants/messages";
 
 type ChatMessage = { id: string; sender: "bot" | "user"; text: string };
 type wizardState = {
@@ -14,9 +16,6 @@ type wizardState = {
   currentIndex: number;
   finished: boolean;
 } | null;
-
-const GREETING =
-  "Olá! 👋 Sou o FlutterGuide, seu assistente para escolha de biblioteca de gerenciamento de estado Flutter. Vou te fazer algumas perguntas sobre seu projeto pra encontrar a melhor opção.";
 
 let messageCount = 0;
 function createMessage(
@@ -28,18 +27,18 @@ function createMessage(
 }
 
 async function sendMessage(message: string, wizardState: wizardState) {
-  const res = await fetch("/api/chat", {
+  const res = await fetch(CHAT_API_ENDPOINT, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: JSON_CONTENT_TYPE_HEADERS,
     body: JSON.stringify({ message, wizardState }),
   });
   return res.json();
 }
 
 async function startWizard() {
-  const res = await fetch("/api/chat", {
+  const res = await fetch(CHAT_API_ENDPOINT, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: JSON_CONTENT_TYPE_HEADERS,
     body: JSON.stringify({ start: true, wizardState: null }),
   });
   return res.json();
@@ -47,7 +46,7 @@ async function startWizard() {
 
 export default function ChatAdvisorScreen() {
   const [messages, setMessages] = useState<ChatMessage[]>([
-    createMessage("bot", GREETING),
+    createMessage("bot", GREETING_MESSAGE),
   ]);
   const [wizardState, setWizardState] = useState<wizardState>(null);
   const [isTyping, setIsTyping] = useState(false);
@@ -90,7 +89,7 @@ export default function ChatAdvisorScreen() {
     } catch {
       setMessages((prev) => [
         ...prev,
-        createMessage("bot", "Desculpe, ocorreu um erro. Pode tentar de novo?"),
+        createMessage("bot", GENERIC_ERROR_MESSAGE),
       ]);
     } finally {
       setIsTyping(false);

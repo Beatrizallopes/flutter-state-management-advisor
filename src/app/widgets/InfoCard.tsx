@@ -1,6 +1,5 @@
 import styles from "./InfoCard.module.css";
-
-const TAGS = ["Provider", "Riverpod", "BLoC", "GetX", "MobX"];
+import { STATE_MANAGEMENT_LIBRARIES } from "@/constants/libraries";
 
 export default function InfoCard() {
   return (
@@ -21,7 +20,7 @@ export default function InfoCard() {
       </p>
 
       <ul className={styles.tags}>
-        {TAGS.map((tag) => (
+        {STATE_MANAGEMENT_LIBRARIES.map((tag) => (
           <li key={tag} className={styles.tag}>
             {tag}
           </li>
