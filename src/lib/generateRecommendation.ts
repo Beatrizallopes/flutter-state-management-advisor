@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// src/lib/generateRecommendation.ts
 import { GoogleGenAI } from "@google/genai";
 import { getAllAnswers } from "./googleSheets";
 import bibliographyData from "@/data/bibliography.json";

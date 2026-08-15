@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// scripts/testarSheets.ts
 import { google } from "googleapis";
 import * as dotenv from "dotenv";
 
 dotenv.config({ path: ".env" });
 
-async function testar() {
+async function testConnection() {
   try {
     const auth = new google.auth.GoogleAuth({
       credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY!),
@@ -16,7 +15,7 @@ async function testar() {
 
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.PORTUGUESE_ANSWERS_SHEET_ID!,
-      range: "A1:Z5", // pega só as 5 primeiras lines pra testar
+      range: "A1:Z5", // pega só as 5 primeiras lines pra testConnection
     });
 
     console.log("✅ Conexão funcionou!");
@@ -41,4 +40,4 @@ async function testar() {
   }
 }
 
-testar();
+testConnection();
