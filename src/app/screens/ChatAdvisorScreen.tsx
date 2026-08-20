@@ -1,22 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import ChatHeader from "@/app/widgets/ChatHeader";
-import ChatInputBar from "@/app/widgets/ChatInputBar";
-import InfoCard from "@/app/widgets/InfoCard";
-import MessageBubble from "@/app/widgets/MessageBubble";
-import TypingIndicator from "@/app/widgets/TypingIndicator";
+import ChatHeader from "@/app/widgets/ChatHeader/ChatHeader";
+import ChatInputBar from "@/app/widgets/ChatInputBar/ChatInputBar";
+import InfoCard from "@/app/widgets/InfoCard/InfoCard";
+import MessageBubble from "@/app/widgets/MessageBubble/MessageBubble";
+import TypingIndicator from "@/app/widgets/TypingIndicator/TypingIndicator";
 import styles from "./ChatAdvisorScreen.module.css";
-
-type ChatMessage = { id: string; sender: "bot" | "user"; text: string };
-type wizardState = {
-  answers: Record<string, string>;
-  currentIndex: number;
-  finished: boolean;
-} | null;
-
-const GREETING =
-  "Olá! 👋 Sou o FlutterGuide, seu assistente para escolha de biblioteca de gerenciamento de estado Flutter. Vou te fazer algumas perguntas sobre seu projeto pra encontrar a melhor opção.";
+import { CHAT_API_ENDPOINT, JSON_CONTENT_TYPE_HEADERS } from "@/constants/api";
+import { GREETING_MESSAGE, GENERIC_ERROR_MESSAGE } from "@/constants/messages";
+import type { ChatMessage } from "@/types/chat";
+import type { wizardState } from "@/types/wizard";
 
 let messageCount = 0;
 function createMessage(
@@ -27,19 +21,19 @@ function createMessage(
   return { id: `msg-${messageCount}`, sender, text };
 }
 
-async function sendMessage(message: string, wizardState: wizardState) {
-  const res = await fetch("/api/chat", {
+async function sendMessage(message: string, wizardState: wizardState | null) {
+  const res = await fetch(CHAT_API_ENDPOINT, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: JSON_CONTENT_TYPE_HEADERS,
     body: JSON.stringify({ message, wizardState }),
   });
   return res.json();
 }
 
 async function startWizard() {
-  const res = await fetch("/api/chat", {
+  const res = await fetch(CHAT_API_ENDPOINT, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: JSON_CONTENT_TYPE_HEADERS,
     body: JSON.stringify({ start: true, wizardState: null }),
   });
   return res.json();
@@ -47,9 +41,9 @@ async function startWizard() {
 
 export default function ChatAdvisorScreen() {
   const [messages, setMessages] = useState<ChatMessage[]>([
-    createMessage("bot", GREETING),
+    createMessage("bot", GREETING_MESSAGE),
   ]);
-  const [wizardState, setWizardState] = useState<wizardState>(null);
+  const [wizardState, setWizardState] = useState<wizardState | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const messagesRef = useRef<HTMLDivElement>(null);
@@ -90,7 +84,7 @@ export default function ChatAdvisorScreen() {
     } catch {
       setMessages((prev) => [
         ...prev,
-        createMessage("bot", "Desculpe, ocorreu um erro. Pode tentar de novo?"),
+        createMessage("bot", GENERIC_ERROR_MESSAGE),
       ]);
     } finally {
       setIsTyping(false);

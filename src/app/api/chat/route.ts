@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { questions, wizardState, initialState } from "@/lib/questionsWizard";
-import { interpretAnswer } from "@/lib/interpretAnswer";
-import { generateRecommendation } from "@/lib/generateRecommendation";
+import {
+  questions,
+  wizardState,
+  initialState,
+} from "@/functions/questionsWizard";
+import { interpretAnswer } from "@/functions/interpretAnswer";
+import { generateRecommendation } from "@/functions/generateRecommendation";
+import {
+  RATE_LIMIT_MESSAGE,
+  WIZARD_ALREADY_FINISHED_MESSAGE,
+  UNRECOGNIZED_ANSWER_PREFIX,
+} from "@/constants/messages";
 
 export async function POST(req: NextRequest) {
   const { message, wizardState, start } = await req.json();
@@ -19,8 +28,7 @@ export async function POST(req: NextRequest) {
 
   if (state.finished) {
     return NextResponse.json({
-      reply:
-        "Sua recomendação já foi gerada! Se quiser recomeçar, atualize a página.",
+      reply: WIZARD_ALREADY_FINISHED_MESSAGE,
       wizardState: state,
     });
   }
@@ -30,15 +38,14 @@ export async function POST(req: NextRequest) {
 
   if (erro === "rate_limit") {
     return NextResponse.json({
-      reply:
-        "Estou recebendo muitas mensagens agora e bati o limite da API. Aguarde um minuto e tente novamente. 🙏",
+      reply: RATE_LIMIT_MESSAGE,
       wizardState: state,
     });
   }
 
   if (!value) {
     return NextResponse.json({
-      reply: `Não consegui identificar bem sua resposta. ${currentQuestion.question}${
+      reply: `${UNRECOGNIZED_ANSWER_PREFIX}${currentQuestion.question}${
         currentQuestion.help ? ` (${currentQuestion.help})` : ""
       }`,
       wizardState: state,

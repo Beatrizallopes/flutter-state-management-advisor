@@ -1,9 +1,5 @@
 import styles from "./OptionButton.module.css";
-
-interface OptionButtonProps {
-  label: string;
-  onClick: () => void;
-}
+import type { OptionButtonProps } from "@/types/components";
 
 export default function OptionButton({ label, onClick }: OptionButtonProps) {
   return (

@@ -1,10 +1,5 @@
 import styles from "./ChatInputBar.module.css";
-
-interface ChatInputBarProps {
-  value: string;
-  onChange: (value: string) => void;
-  onSend: () => void;
-}
+import type { ChatInputBarProps } from "@/types/components";
 
 export default function ChatInputBar({
   value,

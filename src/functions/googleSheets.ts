@@ -1,23 +1,14 @@
 import { google } from "googleapis";
-import { normalizedLine, NormalizedAnswer } from "./normalizeAnswers";
-
-let auth: InstanceType<typeof google.auth.GoogleAuth> | undefined;
-
-function getAuth() {
-  if (!auth) {
-    auth = new google.auth.GoogleAuth({
-      credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY!),
-      scopes: ["https://www.googleapis.com/auth/spreadsheets.readonly"],
-    });
-  }
-  return auth;
-}
+import { normalizedLine } from "./normalizeAnswers";
+import { getAuth } from "./googleAuth";
+import { RESPONSES_SHEET_RANGE } from "@/constants/googleApi";
+import type { NormalizedAnswer } from "@/types/answers";
 
 async function getSheetValues(spreadsheetId: string) {
   const sheets = google.sheets({ version: "v4", auth: getAuth() });
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId,
-    range: "Respostas do Formulário 1",
+    range: RESPONSES_SHEET_RANGE,
   });
   return res.data.values ?? [];
 }
@@ -55,5 +46,5 @@ export async function getAllAnswers(): Promise<NormalizedAnswer[]> {
     getNormalizedAnswers(process.env.PORTUGUESE_ANSWERS_SHEET_ID!, "pt"),
     getNormalizedAnswers(process.env.ENGLISH_ANSWERS_SHEET_ID!, "en"),
   ]);
-  return [...pt, ...en]; // as 42 respostas juntas, já com campos padronizados em português
+  return [...pt, ...en];
 }

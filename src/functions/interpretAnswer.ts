@@ -1,24 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { GoogleGenAI, Type } from "@google/genai";
+import { Type } from "@google/genai";
 import { questions } from "./questionsWizard";
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
-async function comRetry<T>(
-  fn: () => Promise<T>,
-  tentativas = 2,
-  delayMs = 3000,
-): Promise<T> {
-  try {
-    return await fn();
-  } catch (err: any) {
-    if (err.status === 429 && tentativas > 0) {
-      await new Promise((r) => setTimeout(r, delayMs));
-      return comRetry(fn, tentativas - 1, delayMs * 2); // dobra o tempo a cada nova tentativa
-    }
-    throw err;
-  }
-}
+import { withRetry } from "./withRetry";
+import { ai } from "./genAiClient";
+import { GEMINI_MODEL, HTTP_STATUS_RATE_LIMIT } from "@/constants/ai";
 
 export async function interpretAnswer(
   userMessage: string,
@@ -31,9 +16,9 @@ export async function interpretAnswer(
   }
 
   try {
-    const response = await comRetry(() =>
+    const response = await withRetry(() =>
       ai.models.generateContent({
-        model: "gemini-3.5-flash",
+        model: GEMINI_MODEL,
         contents: [
           {
             role: "user",
@@ -68,7 +53,7 @@ Se a resposta não permitir identificar claramente uma opção, retorne valor nu
     const parsed = JSON.parse(response.text);
     return { value: parsed.value };
   } catch (err: any) {
-    if (err.status === 429) {
+    if (err.status === HTTP_STATUS_RATE_LIMIT) {
       return { value: null, erro: "rate_limit" };
     }
     console.error("Erro ao interpretar resposta:", err);

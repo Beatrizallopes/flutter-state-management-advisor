@@ -1,26 +1,18 @@
-// scripts/extrairBibliografiaComGemini.ts
 import * as dotenv from "dotenv";
 dotenv.config();
 import fs from "fs";
 import path from "path";
-import { GoogleGenAI } from "@google/genai";
+import { ai } from "../src/functions/genAiClient";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
-const CAMINHO_PDF = path.join(
+const pdfPath = path.join(
   process.cwd(),
   "bibliografia",
   "Referência Bibliográfica TCC.pdf",
 );
-const ARQUIVO_SAIDA = path.join(
-  process.cwd(),
-  "src",
-  "data",
-  "bibliografia.json",
-);
+const outputFile = path.join(process.cwd(), "src", "data", "bibliografia.json");
 
 async function main() {
-  const buffer = fs.readFileSync(CAMINHO_PDF);
+  const buffer = fs.readFileSync(pdfPath);
   const base64Pdf = buffer.toString("base64");
 
   const response = await ai.models.generateContent({
@@ -43,20 +35,20 @@ async function main() {
     ],
   });
 
-  const textoLimpo = response.text;
+  const cleanText = response.text;
 
-  fs.mkdirSync(path.dirname(ARQUIVO_SAIDA), { recursive: true });
+  fs.mkdirSync(path.dirname(outputFile), { recursive: true });
   fs.writeFileSync(
-    ARQUIVO_SAIDA,
+    outputFile,
     JSON.stringify(
-      [{ nomeArquivo: "Referência Bibliográfica TCC.pdf", texto: textoLimpo }],
+      [{ nomeArquivo: "Referência Bibliográfica TCC.pdf", texto: cleanText }],
       null,
       2,
     ),
   );
 
-  console.log("✅ Texto extraído via Gemini e salvo em:", ARQUIVO_SAIDA);
-  console.log(`Total de caracteres: ${textoLimpo?.length}`);
+  console.log("✅ Texto extraído via Gemini e salvo em:", outputFile);
+  console.log(`Total de caracteres: ${cleanText?.length}`);
 }
 
 main();
