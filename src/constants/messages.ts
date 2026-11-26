@@ -16,4 +16,11 @@ export const RECOMMENDATION_FAILED_MESSAGE =
 export const WIZARD_ALREADY_FINISHED_MESSAGE =
   "Sua recomendação já foi gerada! Se quiser recomeçar, atualize a página.";
 
-export const UNRECOGNIZED_ANSWER_PREFIX = "Não consegui identificar bem sua resposta. ";
+export const UNRECOGNIZED_ANSWER_PREFIX =
+  "Não consegui identificar bem sua resposta. ";
+
+export const MODEL_UNAVAILABLE_MESSAGE =
+  "O modelo de IA está sobrecarregado no momento. Aguarde alguns instantes e envie sua resposta novamente. 🙏";
+
+export const SURVEY_DATA_UNAVAILABLE_MESSAGE =
+  "Desculpe, não consegui acessar os dados da pesquisa agora. Envie sua última resposta novamente em instantes para tentar de novo.";

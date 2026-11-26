@@ -26,7 +26,7 @@ export const questions = [
   },
   {
     field: "tipoApp",
-    question: "Qual o tipo de aplicação? ()",
+    question: "Qual o tipo de aplicação?",
     options: null,
     help: "ex: E-commerce, App corporativo/interno, Finanças/Banking, Saúde, Educação, ERP, Mídia/Conteúdo...",
   },

@@ -1,24 +1,48 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Type } from "@google/genai";
+import { ThinkingLevel, Type } from "@google/genai";
 import { questions } from "./questionsWizard";
-import { withRetry } from "./withRetry";
+import { withModelFallback } from "./withModelFallback";
 import { ai } from "./genAiClient";
-import { GEMINI_MODEL, HTTP_STATUS_RATE_LIMIT } from "@/constants/ai";
+import {
+  HTTP_STATUS_RATE_LIMIT,
+  HTTP_STATUS_SERVICE_UNAVAILABLE,
+} from "@/constants/ai";
+
+// Normaliza para comparação: minúsculas, sem acentos, sem pontuação nas pontas
+function normalize(text: string): string {
+  return text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, "");
+}
 
 export async function interpretAnswer(
   userMessage: string,
   questionIndex: number,
-): Promise<{ value: string | null; erro?: "rate_limit" | "outro" }> {
+): Promise<{
+  value: string | null;
+  erro?: "rate_limit" | "unavailable" | "outro";
+}> {
   const question = questions[questionIndex];
 
   if (!question.options) {
     return { value: userMessage.trim() || null };
   }
 
+  // Resposta igual a uma das opções: não precisa chamar a IA
+  const exactMatch = question.options.find(
+    (option) => normalize(option) === normalize(userMessage),
+  );
+  if (exactMatch) {
+    return { value: exactMatch };
+  }
+
   try {
-    const response = await withRetry(() =>
+    const response = await withModelFallback((model) =>
       ai.models.generateContent({
-        model: GEMINI_MODEL,
+        model,
         contents: [
           {
             role: "user",
@@ -34,6 +58,8 @@ Se a resposta não permitir identificar claramente uma opção, retorne valor nu
           },
         ],
         config: {
+          // Classificação simples: raciocínio não melhora o resultado e é cobrado como saída
+          thinkingConfig: { thinkingLevel: ThinkingLevel.MINIMAL },
           responseMimeType: "application/json",
           responseSchema: {
             type: Type.OBJECT,
@@ -55,6 +81,9 @@ Se a resposta não permitir identificar claramente uma opção, retorne valor nu
   } catch (err: any) {
     if (err.status === HTTP_STATUS_RATE_LIMIT) {
       return { value: null, erro: "rate_limit" };
+    }
+    if (err.status === HTTP_STATUS_SERVICE_UNAVAILABLE) {
+      return { value: null, erro: "unavailable" };
     }
     console.error("Erro ao interpretar resposta:", err);
     return { value: null, erro: "outro" };
