@@ -8,6 +8,7 @@ import { interpretAnswer } from "@/functions/interpretAnswer";
 import { generateRecommendation } from "@/functions/generateRecommendation";
 import {
   RATE_LIMIT_MESSAGE,
+  MODEL_UNAVAILABLE_MESSAGE,
   WIZARD_ALREADY_FINISHED_MESSAGE,
   UNRECOGNIZED_ANSWER_PREFIX,
 } from "@/constants/messages";
@@ -43,6 +44,13 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  if (erro === "unavailable") {
+    return NextResponse.json({
+      reply: MODEL_UNAVAILABLE_MESSAGE,
+      wizardState: state,
+    });
+  }
+
   if (!value) {
     return NextResponse.json({
       reply: `${UNRECOGNIZED_ANSWER_PREFIX}${currentQuestion.question}${
@@ -66,8 +74,15 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  newState.finished = true;
-  const recommendation = await generateRecommendation(newState.answers);
+  const { reply, ok } = await generateRecommendation(newState.answers);
 
-  return NextResponse.json({ reply: recommendation, wizardState: newState });
+  if (!ok) {
+    // Mantém o estado anterior: o usuário reenvia a última resposta para tentar de novo
+    return NextResponse.json({ reply, wizardState: state });
+  }
+
+  return NextResponse.json({
+    reply,
+    wizardState: { ...newState, finished: true },
+  });
 }

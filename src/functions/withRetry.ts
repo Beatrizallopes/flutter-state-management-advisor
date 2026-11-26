@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  HTTP_STATUS_RATE_LIMIT,
+  RETRYABLE_HTTP_STATUSES,
   RETRY_DEFAULT_ATTEMPTS,
   RETRY_DEFAULT_DELAY_MS,
 } from "@/constants/ai";
@@ -13,7 +13,7 @@ export async function withRetry<T>(
   try {
     return await fn();
   } catch (err: any) {
-    if (err.status === HTTP_STATUS_RATE_LIMIT && attempts > 0) {
+    if (RETRYABLE_HTTP_STATUSES.includes(err?.status) && attempts > 0) {
       await new Promise((r) => setTimeout(r, delayMs));
       return withRetry(fn, attempts - 1, delayMs * 2);
     }
